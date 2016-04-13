@@ -1,0 +1,200 @@
+package com.madebyjeffrey;
+
+import java_cup.runtime.*;
+import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.List;
+import java.util.ArrayList; 
+
+//=======================================
+// Terminals
+//=======================================
+terminal String MIXTAPE,FIRE,AKA;
+terminal String BONES, WORDONTHASTREET, DAB, PARTY;
+terminal String LIT, NOTLIT;
+terminal String GETMONEY,THROWMONEY,BALLOUT,CUT;
+terminal String CHECK, REK, YOSEWF;
+terminal String BOUNCE, PREACH;
+terminal String WEAK, WINNING, ONMYLEVEL, OTHERLEVEL;
+terminal String TURNUP,DEAD;
+terminal String DOLLA, LPAREN, RPAREN,QM;
+terminal String HASHTAG;
+terminal String COLON;
+terminal String DIGIT,LETTER,PLAYA,SON;
+terminal String NETHING,NEWLINE;
+terminal String STREETNAME;
+terminal String IDENTIFIER;
+terminal String STAR, AT, PUNC;
+terminal String SUHDUDE;
+terminal String FAM;
+terminal String DUDESUH;
+
+//=======================================
+// Non-Terminals
+//=======================================
+non terminal String  mixtape;
+non terminal String  mixtape_verse;
+non terminal String  nochill_verse;
+non terminal String  fire_verse;
+non terminal String  flame;
+non terminal String  formal_homies;
+non terminal String  formal_homie;
+non terminal String  playa;
+non terminal String  block;
+non terminal String  block_verse;
+non terminal String  track;
+non terminal String  local_dab_verse;
+non terminal String  aka_track;
+non terminal String  aka_check;
+non terminal String  aka;
+non terminal String  beat;
+non terminal String  beat_left;
+non terminal String  basedgod_call;
+non terminal String  basedgod_homies;
+non terminal String  party_literal;
+non terminal String  preach_track;
+non terminal String  wordonthastreetverse;
+non terminal String  bounce_track;
+non terminal String  check_track;
+non terminal String  lit_beat;
+non terminal String  hustle;
+non terminal String  packages;
+
+//=======================================
+// Precedence
+//=======================================
+precedence left WEAK, WINNING, ONMYLEVEL, OTHERLEVEL;
+precedence left LIT, NOTLIT;
+precedence left GETMONEY,THROWMONEY,BALLOUT,CUT;
+
+//=======================================
+// Production Rules
+//=======================================
+
+mixtape::= mixtape_verse:mtv nochill_verse:ncv fire_verse:fv 
+	{: 
+		System.out.printf("public class %s { \n%s%s\n}", mtv, ncv, fv); 
+	:}
+	| mixtape_verse:mtv packages nochill_verse:ncv fire_verse:fv
+	{: 
+		System.out.printf("public class %s { \n%s%s\n}", mtv, ncv, fv); 
+	:}
+;
+
+packages::= FAM IDENTIFIER:id packages:p {: System.out.printf("import java.util.%s;\n%s",id,p); :}
+		  | FAM IDENTIFIER:id {: System.out.printf("import java.util.%s;\n\n",id); :}
+;
+
+mixtape_verse::= MIXTAPE IDENTIFIER:id DOLLA {: RESULT = String.format("%s", id); :}
+;
+
+nochill_verse::= IDENTIFIER:id LPAREN formal_homies:fh RPAREN COLON playa:p block:b {: RESULT = String.format("public static %s %s(%s){\n%s\n}\n", p,String.format("%s",id),fh,b); :} 
+			   | IDENTIFIER:id LPAREN RPAREN COLON playa:p block:b {: RESULT = String.format("public static %s %s(){\n%s\n}\n", p,id,b); :}
+;
+
+fire_verse::= FIRE block:b {: RESULT = String.format("public static void main(String[] args){\n%s\n}", b); :}
+;
+
+
+formal_homies::= formal_homie:fh HASHTAG formal_homie:fh2 {: RESULT = String.format("%s,%s", fh,fh2); :}
+			   | formal_homie:fh {: RESULT = String.format("%s", fh); :}
+;
+
+formal_homie::= IDENTIFIER:id COLON playa:p {: RESULT = String.format("%s %s", p, id); :}
+;
+
+playa::= BONES:b {: RESULT = "int"; :}
+       | WORDONTHASTREET:w {: RESULT = "String"; :} 
+       | DAB :d {: RESULT = "var"; :}
+       | PARTY:p {: RESULT = "boolean"; :}
+;
+
+block::= TURNUP block_verse:bv DEAD {: RESULT = String.format("%s", bv); :}
+;
+
+block_verse::= track:tr DOLLA block_verse:bv {: RESULT = String.format("%s;\n%s", tr, bv); :} 
+			 | track:tr DOLLA {: RESULT = String.format("%s;", tr); :}
+			 | track:tr {: RESULT = String.format("%s", tr); :}
+;
+
+track::= block:b {: RESULT = String.format("%s", b); :}
+	   | local_dab_verse:ldv {: RESULT = String.format("%s", ldv); :}
+	   | aka_track:akat {: RESULT = String.format("%s", akat); :}
+	   | bounce_track:bt {: RESULT = String.format("%s", bt); :}
+	   | check_track:ct {: RESULT = String.format("%s", ct); :}
+	   | preach_track:pt {: RESULT = String.format("%s", pt); :}
+	   | basedgod_call:bgc {: RESULT = String.format("%s", bgc); :}
+	   | SUHDUDE:sd {: RESULT = "Scanner suh = new Scanner(System.in);"; :}
+;
+
+local_dab_verse::= DAB STREETNAME:st COLON playa:p aka:a {: RESULT = String.format("%s %s %s", p,st,a); :}
+				 | DAB STREETNAME:st COLON playa:p {: RESULT = String.format("%s %s;\n", p,st); :}
+;
+
+aka_track::= STREETNAME:st aka:a {: RESULT = String.format("%s %s;\n", a,st); :}
+;
+
+aka::= AKA beat_left:bl {: RESULT = String.format(" = %s", bl); :}
+	 | aka_check:a {: RESULT = String.format("%s",a); :}
+;
+
+aka_check::= WEAK {: RESULT = " < "; :}
+		   | WINNING {: RESULT = " > "; :}
+		   | ONMYLEVEL {: RESULT = " == "; :}
+		   | OTHERLEVEL {: RESULT = " != "; :}
+;
+
+beat::= DIGIT:d {: RESULT = String.format("%s", d); :}
+	  | STREETNAME:sn {: RESULT = String.format("%s", sn); :}
+	  | IDENTIFIER:id {: RESULT = String.format("%s", id); :}
+	  | basedgod_call:bgc {: RESULT = String.format("%s", bgc); :}
+	  | party_literal:pl {: RESULT = String.format("%s", pl); :}
+;
+
+beat_left ::= beat_left:bl hustle:hb beat:bl2 {: RESULT = String.format("%s% %s %s", bl, hb, bl2); :}
+		   | IDENTIFIER:id LPAREN beat_left:bl RPAREN {: RESULT = String.format("%s(%s)", id, bl); :}
+		   | beat:b {: RESULT = String.format("%s", b); :}
+		   | DUDESUH {: RESULT = "suh.nextInt()"; :} 
+;
+
+basedgod_call::= flame:f LPAREN basedgod_homies:bgh RPAREN {: RESULT = String.format("%s(%s)", f, bgh); :}
+			   | flame:f LPAREN RPAREN {: RESULT = String.format("%s()", f); :}
+;
+
+basedgod_homies::= beat_left:bl basedgod_homies:bgh {: RESULT = String.format("%s %s)", bl, bgh); :}
+				 | HASHTAG beat_left:bl basedgod_homies:bgh   {: RESULT = String.format(",%s %s", bl, bgh); :}
+				 | HASHTAG beat_left:bl {: RESULT = String.format(",%s", bl); :}
+				 | beat_left:bl {: RESULT = String.format("%s", bl); :}
+;
+
+party_literal::= LIT {: RESULT = "true"; :}
+			   | NOTLIT {: RESULT = "false"; :}
+;
+
+preach_track::= PREACH LPAREN wordonthastreetverse:w RPAREN DOLLA {: RESULT = String.format("System.out.println(\"%s\");", w); :}
+;
+
+wordonthastreetverse::= QM IDENTIFIER:id QM {: RESULT = id; :}
+					  | QM QM {: RESULT = ""; :}
+;
+ 
+bounce_track::= BOUNCE beat_left:bl DOLLA {: RESULT = String.format("return %s;", bl); :}
+;
+
+check_track::= CHECK lit_beat:lb track:t SON {: RESULT = String.format("if %s\n%s", lb, t); :}
+			 | CHECK lit_beat:lb track:t REK lit_beat:lb2 track:t2 SON {: RESULT = String.format("if (%s)\n%s\nelse if(%s)\n%s\n", lb, t, lb2, t2); :} 
+			 | CHECK lit_beat:lb track:t YOSEWF track:t2 SON  {: RESULT = String.format("if (%s)\n%s\nelse\n%s\n", lb, t, t2); :}
+			 | CHECK lit_beat:lb track:t REK  lit_beat:lb2 track:t2 YOSEWF track:t3 SON {: RESULT = String.format("if(%s)\n%s\nelse if(%s)\n%s\nelse\n%s", lb, t, lb2, t2,t3); :} 
+;
+
+lit_beat::= beat_left:bl aka:ak beat_left:bl2  {: RESULT = String.format("%s %s %s", bl, ak, bl2); :} 
+		  | beat_left:bl  {: RESULT = String.format("%s", bl); :}
+;
+
+hustle::= GETMONEY {: RESULT = " + "; :}
+	 	| THROWMONEY {: RESULT = " - "; :}
+		| BALLOUT {: RESULT = " * "; :}
+		| CUT {: RESULT = " / "; :}
+;
+
